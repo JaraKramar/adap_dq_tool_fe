@@ -1,0 +1,41 @@
+import React from 'react'
+
+export default class Starships extends React.Component {
+    state = {
+        expectation_suite_name: string,
+        run_name: string,
+        run_time: string,
+        batch_identifier: string,
+        value: {}
+    }
+  
+    componentDidMount () {
+      fetch('https://adapdqweb.azurewebsites.net/validations-by-expectation-name/my_suite')
+        .then(response => response.json())
+        .then(response => this.setState({ 
+          starships: response.results,
+          loading: false
+        }))
+        .catch(error => this.setState({ 
+          loading: false, 
+          error: true 
+        }));
+    }
+  
+    render () {
+      const { starships, loading, error } = this.state;
+      return (
+        <div>
+          {loading && <div>Loading...</div>}
+          {!loading && !error && 
+            starships.map(starship => (
+              <div key={starship.name}>
+                {starship.name}
+              </div>
+            ))
+          }
+          {error && <div>Error message</div>}
+        </div>
+      );
+    }
+  };

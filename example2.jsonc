@@ -1,0 +1,171 @@
+{
+  "evaluation_parameters": {},
+  "meta": {
+    "great_expectations_version": "0.12.10",
+    "expectation_suite_name": "dq_tool_authored_expectations",
+    "run_id": {
+      "run_time": "2020-12-01T14:24:09.434434+00:00",
+      "run_name": "dq_tool_on_demand_run"
+    },
+    "batch_kwargs": { "ge_batch_id": "e055bcd4-33e0-11eb-b038-00163ed8f385" },
+    "batch_markers": {},
+    "batch_parameters": {},
+    "validation_time": "20201201T142409.447609Z"
+  },
+  "results": [
+    {
+      "result": { "observed_value": 332685 },
+      "exception_info": {
+        "raised_exception": false,
+        "exception_message": null,
+        "exception_traceback": null
+      },
+      "meta": {},
+      "success": true,
+      "expectation_config": {
+        "kwargs": {
+          "min_value": 400,
+          "result_format": { "result_format": "SUMMARY" }
+        },
+        "expectation_type": "expect_table_row_count_to_be_between",
+        "meta": {}
+      }
+    },
+    {
+      "result": {
+        "element_count": 332685,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "unexpected_count": 23799,
+        "unexpected_percent": 7.153613778799765,
+        "unexpected_percent_nonmissing": 7.153613778799765,
+        "partial_unexpected_list": [
+          2.720001220703125,
+          3.2699966430664062,
+          1.0099945068359375,
+          1.5,
+          2.5500030517578125,
+          1.4499969482421875,
+          1.0200042724609375,
+          1.0699996948242188,
+          1.3700027465820312,
+          1.2399978637695312,
+          1.1699981689453125,
+          1.029998779296875,
+          1.5200004577636719,
+          2.2299957275390625,
+          1.0800018310546875,
+          1.3400039672851562,
+          1.2399978637695312,
+          1.3199996948242188,
+          1.089996337890625,
+          1.0499954223632812
+        ]
+      },
+      "exception_info": {
+        "raised_exception": false,
+        "exception_message": null,
+        "exception_traceback": null
+      },
+      "meta": {},
+      "success": false,
+      "expectation_config": {
+        "kwargs": {
+          "column_expression": "abs(open - close)",
+          "max_value": 1,
+          "mostly": 0.95,
+          "result_format": { "result_format": "SUMMARY" }
+        },
+        "expectation_type": "expect_column_expression_values_to_be_between",
+        "meta": {}
+      }
+    },
+    {
+      "result": {
+        "element_count": 332685,
+        "missing_count": 0,
+        "missing_percent": 0.0,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "unexpected_percent_nonmissing": 0.0,
+        "partial_unexpected_list": [],
+        "partial_unexpected_index_list": null,
+        "partial_unexpected_counts": []
+      },
+      "exception_info": {
+        "raised_exception": false,
+        "exception_message": null,
+        "exception_traceback": null
+      },
+      "meta": {},
+      "success": true,
+      "expectation_config": {
+        "kwargs": {
+          "column_list": ["symbol", "date"],
+          "mostly": null,
+          "ignore_row_if": "all_values_are_missing",
+          "result_format": { "result_format": "SUMMARY" }
+        },
+        "expectation_type": "expect_select_column_values_to_be_unique_within_record",
+        "meta": {}
+      }
+    },
+    {
+      "result": {
+        "element_count": 332685,
+        "unexpected_count": 0,
+        "unexpected_percent": 0.0,
+        "partial_unexpected_list": [],
+        "partial_unexpected_index_list": null
+      },
+      "exception_info": {
+        "raised_exception": false,
+        "exception_message": null,
+        "exception_traceback": null
+      },
+      "meta": {},
+      "success": true,
+      "expectation_config": {
+        "kwargs": {
+          "column": "symbol",
+          "mostly": 0.99,
+          "result_format": { "result_format": "SUMMARY" }
+        },
+        "expectation_type": "expect_column_values_to_not_be_null",
+        "meta": {}
+      }
+    },
+    {
+      "result": {
+        "observed_value": 290232400,
+        "element_count": 332685,
+        "missing_count": null,
+        "missing_percent": null
+      },
+      "exception_info": {
+        "raised_exception": false,
+        "exception_message": null,
+        "exception_traceback": null
+      },
+      "meta": {},
+      "success": false,
+      "expectation_config": {
+        "kwargs": {
+          "column": "volume",
+          "max_value": 100000000,
+          "min_value": 0,
+          "result_format": { "result_format": "SUMMARY" }
+        },
+        "expectation_type": "expect_column_max_to_be_between",
+        "meta": {}
+      }
+    }
+  ],
+  "success": false,
+  "statistics": {
+    "evaluated_expectations": 5,
+    "successful_expectations": 3,
+    "unsuccessful_expectations": 2,
+    "success_percent": 60.0
+  }
+}
