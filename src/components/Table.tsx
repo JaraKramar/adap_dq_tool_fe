@@ -52,7 +52,7 @@ interface RowData {
   success: boolean;
   //            "partial_unexpected_list": [], //--- zatim na klik rozbalit i zabalit
   //            "result": {"element_count": 332685, //--- jen u spadlych kontrol rozbalovaci -- copy button
-  result: Array<TemplateStringsArray>;
+  result: JSON;
   // statistics: object
 }
 
@@ -67,7 +67,7 @@ function GetValidations() {
 
   if (error) return "An error has occurred: ";
  */
-  const data = axios('https://adapdqweb.azurewebsites.net/validations/last');
+  const data = axios("https://adapdqweb.azurewebsites.net/validations/last");
   return data;
 }
 
@@ -92,8 +92,11 @@ function Row(props: { row: RowData }) {
           {row.expectation_type}
         </TableCell>
         <TableCell align="right">{row.kwargs}</TableCell>
-        <TableCell align="right">{row.success ? "success" : "failed"}</TableCell>
+        <TableCell align="right" color="error">
+          {row.success ? "success" : "failed"}
+        </TableCell>
         <TableCell align="right">{row.meta}</TableCell>
+        <TableCell align="right">{JSON.stringify(row.result).substring(0,40)}</TableCell>
         <TableCell align="right">
           <Button
             variant="contained"
@@ -116,9 +119,12 @@ function Row(props: { row: RowData }) {
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Customer</TableCell>
-                    <TableCell align="right">Amount</TableCell>
+                  {
+                    Object.keys(row.result).map((key) =>
+                        // if isinstance(row.result[key], dict)== False:
+                        <TableCell>{key}</TableCell>
+                      )
+                  }
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -141,44 +147,50 @@ function Row(props: { row: RowData }) {
 }
 export default function CollapsibleTable() {
   const [validations, setValidations] = useState<ValidationRun[]>([]);
-  const [isLoading, setLoading] = useState(false)
-  const [isError, setError] = useState(false)
+  const [isLoading, setLoading] = useState(false);
+  const [isError, setError] = useState(false);
   const [data, setData] = useState({});
 
-  function TimestampToTime(timestamp: string): Date {
+  function TimestampToISO(timestamp: string): string {
     console.log("timestamp", timestamp);
-    const selectedPlacement = "$1-$2-$3T$4:$5:$6";
+    //const selectedPlacement = "$1-$2-$3T$4:$5:$6";
+    const selectedPlacement = "$1 $2 $3";
     const convertedTimestamp = timestamp.replace(
       /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(\.\d{6}Z)$/,
       selectedPlacement
     );
-    return new Date(convertedTimestamp);
+    return convertedTimestamp;
   }
-  
+
   function ValidationRunFromResponse(resp: ValidationRun): RowData[] {
     // 'meta' 'validation_time'
-    const metaTimestamp = TimestampToTime(resp.run_time).toString();
+    const metaTimestamp = TimestampToISO(resp.run_time);
     const value = JSON.parse(resp.value);
     let rows: RowData[] = [];
 
     console.log("---RESULT", value["results"][0]["partial_unexpected_count"]);
-    rows = value["results"].map((expectation: any) => ({
-      meta: metaTimestamp,
-      expectation_type: expectation["expectation_config"]["expectation_type"],
-      kwargs: expectation["kwargs"],
-      success: expectation["success"],
-      result: expectation["partial_unexpected_count"],
-    }));
+
+    rows = value["results"].map((expectation: any) => {
+      return {
+        meta: metaTimestamp,
+        expectation_type: expectation["expectation_config"]["expectation_type"],
+        kwargs: JSON.stringify(expectation.expectation_config.kwargs).substring(0,49),
+        success: expectation["success"],
+        result: expectation["result"],
+      };
+    });
     return rows;
   }
- 
+
   useEffect(() => {
     const fetchData = async () => {
       setError(false);
       setLoading(true);
-  
+
       try {
-        const response = await axios('https://adapdqweb.azurewebsites.net/validations/last');
+        const response = await axios(
+          "https://adapdqweb.azurewebsites.net/validations/last"
+        );
         setValidations(response.data);
         setData(response.data);
       } catch (error) {
@@ -186,11 +198,10 @@ export default function CollapsibleTable() {
       }
       setLoading(false);
     };
-    fetchData()
+    fetchData();
   }, []);
 
-
- /*  let validation = GetValidations();
+  /*  let validation = GetValidations();
   console.log("Validation value ------", validation[0])
   let parsedValidation = ValidationRunFromResponse(validation[0]);
   console.log("Validation value ------", validation)
@@ -198,37 +209,39 @@ export default function CollapsibleTable() {
 
   return (
     <div>
-        <h1>Validations List</h1>
-        {isError && <div> Error occured </div>}
-        {isLoading ? (
-          <div>Loading ...</div>
-        ) : (
-          <ul>
-      {validations.map((validation) => (
-      <TableContainer component={Paper}>
-       <Table aria-label="collapsible table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-            <TableCell>expectation_type</TableCell>
-            <TableCell align="left">kwargs</TableCell>
-            <TableCell align="right">success</TableCell>
-            <TableCell align="right">meta</TableCell>
-            <TableCell align="right">result</TableCell>
-            <TableCell align="right">Mute</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {console.log("VALIDATION====", validation)}
-          {ValidationRunFromResponse(validation).map((row) => (
-            <Row key={row.expectation_type} row={row} />
+      <h1>TickerInfo Validation</h1>
+      {isError && <div> Error occured </div>}
+      {isLoading ? (
+        <div>Loading ...</div>
+      ) : (
+        <ul>
+          {validations.map((validation) => (
+            <TableContainer component={Paper}>
+              <Table aria-label="TickerInfo">
+                <TableHead>
+                  <TableRow>
+                    <TableCell />
+                    <TableCell>
+                      expectation_type suite-{validation.expectation_suite_name}
+                    </TableCell>
+                    <TableCell align="left">kwargs</TableCell>
+                    <TableCell align="right">success</TableCell>
+                    <TableCell align="right">meta</TableCell>
+                    <TableCell align="right">result</TableCell>
+                    <TableCell align="right">Mute</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {console.log("VALIDATION====", validation)}
+                  {ValidationRunFromResponse(validation).map((row) => (
+                    <Row key={row.expectation_type} row={row} />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           ))}
-        </TableBody>
-       </Table>
-      </TableContainer>
-      ))}
-      </ul>
-        )}
+        </ul>
+      )}
     </div>
   );
 }
